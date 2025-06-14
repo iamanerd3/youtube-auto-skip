@@ -6,7 +6,7 @@ from PIL import Image
 pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'  # Replace with your tesseract path
 
 # Initialize camera
-cap = cv2.VideoCapture(0)  # 0 is usually the default camera, use 1, 2, ... for others
+cap = cv2.VideoCapture(4)  # 0 is usually the default camera, use 1, 2, ... for others
 
 if not cap.isOpened():
     print("Error: Could not open camera.")
