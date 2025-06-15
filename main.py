@@ -1,3 +1,7 @@
+import os
+os.environ["OPENCV_LOG_LEVEL"] = "ERROR"
+os.environ["FLAGS_log_level"] = "3"  # Suppress PaddleOCR logs
+
 from time import sleep
 import cv2
 from paddleocr import PaddleOCR
@@ -5,7 +9,17 @@ from paddleocr import PaddleOCR
 # Initialize PaddleOCR (English)
 ocr = PaddleOCR(use_angle_cls=True, lang='en')
 
-cap = cv2.VideoCapture(4)
+# List available capture sources (indexes 0-9)
+print("Listing available video capture sources:")
+for idx in range(10):
+    cap_test = cv2.VideoCapture(idx)
+    if cap_test.isOpened():
+        print(f"Source {idx} is available.")
+        cap_test.release()
+    else:
+        print(f"Source {idx} is not available.")
+
+cap = cv2.VideoCapture(int(input("Enter the video capture source index (0-9): ")))
 if not cap.isOpened():
     print("Error: Could not open camera.")
     exit()
