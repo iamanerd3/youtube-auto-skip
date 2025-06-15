@@ -1,48 +1,42 @@
+from time import sleep
 import cv2
-import pytesseract
-from PIL import Image
+from paddleocr import PaddleOCR
 
-# Path to the tesseract executable (if not in your system's PATH)
-pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'  # Replace with your tesseract path
+# Initialize PaddleOCR (English)
+ocr = PaddleOCR(use_angle_cls=True, lang='en')
 
-# Initialize camera
-cap = cv2.VideoCapture(4)  # 0 is usually the default camera, use 1, 2, ... for others
-
+cap = cv2.VideoCapture(4)
 if not cap.isOpened():
     print("Error: Could not open camera.")
     exit()
 
-frame_count = 0
-
 while True:
     ret, frame = cap.read()
-    frame_count += 1
-    print(f"Frame {frame_count}: ret={ret}, shape={frame.shape if ret else 'N/A'}")
-
     if not ret:
-        print("Error: Failed to capture frame. Exiting loop.")
+        print("Error: Failed to capture frame.")
         break
 
-    # Show the raw camera frame for debugging
-    cv2.imshow('Raw Camera', frame)
+    # Run OCR on the frame (convert BGR to RGB)
+    result = ocr.ocr(frame[..., ::-1], cls=True)
+    text_lines = []
+    for line in result[0]:
+        text_lines.append(line[1][0])
 
-    # Convert the frame to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Combine detected text lines
+    text = " ".join(text_lines)
 
-    # Use Pillow to convert the OpenCV frame to an image compatible with pytesseract
-    pil_image = Image.fromarray(gray)
 
-    # Perform OCR
-    text = pytesseract.image_to_string(pil_image)
-    print(f"OCR Text: {repr(text)}")
+    # Show the frame with detected text
+    display_frame = frame.copy()
+    cv2.putText(display_frame, text, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.imshow('PaddleOCR Camera', display_frame)
+    
+    # Check for 'skip' (case-insensitive, anywhere in text)
+    if "skip" in text.lower():
+        print("SKIP DETECTED, SENDING REQUEST")
+        sleep(3)
 
-    # Display the frame and the extracted text
-    cv2.putText(frame, text, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.imshow('Live OCR', frame)
-
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
-        print("Quitting...")
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 cap.release()
