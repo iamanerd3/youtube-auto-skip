@@ -1,0 +1,5 @@
+setuptools
+paddlepaddle==3.0.0 --index-url https://www.paddlepaddle.org.cn/packages/stable/cpu/
+paddleocr
+opencv-python
+pandas
