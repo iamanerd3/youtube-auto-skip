@@ -10,6 +10,11 @@ from time import sleep
 import cv2
 from paddleocr import PaddleOCR
 
+# =====================
+# Configurable settings
+# =====================
+ocr_interval = 7  # Minimum seconds between OCR runs (controls CPU usage)
+
 # Initialize PaddleOCR (English) with new parameter
 ocr = PaddleOCR(use_textline_orientation=True, lang="en")
 
@@ -55,7 +60,6 @@ if not cap.isOpened():
     exit()
 
 last_ocr_time = 0  # Timestamp of last OCR run
-ocr_interval = 7  # Minimum seconds between OCR runs (controls CPU usage)
 last_text = ""  # Last recognized text to display between OCR runs
 
 print("[INFO] Displaying camera feed. OCR will run every", ocr_interval, "seconds.")
